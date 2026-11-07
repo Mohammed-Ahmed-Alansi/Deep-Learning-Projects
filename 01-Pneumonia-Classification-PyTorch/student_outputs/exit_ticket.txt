@@ -1,0 +1,7 @@
+student_name: MOHAMMED ALANSI
+
+what_changed: تم فتح التدرجات وتدريب آخر كتلة ميزات في MobileNetV2 (features[-1] / features.18) مع المصنف Classifier باستخدام معدل تعلم مخفض (0.0001).
+
+what_happened_in_validation: تم قياس دقة وخسارة التحقق قبل وبعد تدريب 10 دفعات (320 صورة) لمراقبة استجابة النموذج مع ثبات إحصاءات BatchNorm.
+
+why_gradcam_is_not_a_diagnosis: خريطة Grad-CAM تقدم تفسيرا تقريبيا لمناطق تركيز النموذج الإيجابية، ولا تحدد حدود الآفة المرضية بدقة ولا تعد بديلا عن التشخيص الطبي المتخصص.

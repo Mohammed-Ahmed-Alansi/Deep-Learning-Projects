@@ -1,0 +1,2 @@
+train_images,train_batches,lr,before_val_loss,after_val_loss,before_val_accuracy,after_val_accuracy
+320,10,0.0001,0.1436180909420993,0.13099322361720575,0.9405405405405406,0.9513513513513514

@@ -1,0 +1,18 @@
+# Data and model weights
+data/
+*.pt
+*.pth
+*.bin
+*.zip
+*.rar
+*.tar.gz
+
+# Python & Jupyter
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+env/
+venv/
