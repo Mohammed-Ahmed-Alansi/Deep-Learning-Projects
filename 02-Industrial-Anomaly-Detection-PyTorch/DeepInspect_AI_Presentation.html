@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepInspect AI - العرض التقديمي للمشروع</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: rgba(18, 26, 43, 0.85);
+            --border-glow: rgba(56, 189, 248, 0.3);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.5);
+            --accent: #10b981;
+            --danger: #ef4444;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+        }
+
+        /* Top Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            width: 10%;
+            transition: width 0.3s ease;
+        }
+
+        /* Header Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(10, 14, 23, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .logo-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        .logo-badge span {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slide-counter {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 0.45rem 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px var(--primary-glow);
+            border-color: var(--primary);
+        }
+
+        /* Slide Stage */
+        .stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: calc(100% - 6rem);
+            max-width: 1200px;
+            height: calc(100% - 2rem);
+            max-height: 680px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            transform: scale(0.96) translateY(20px);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: all;
+        }
+
+        /* Typography & Layouts */
+        .slide-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.25rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-title span {
+            color: var(--primary);
+        }
+
+        .slide-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Grids & Cards */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            transition: all 0.25s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Metric Highlights */
+        .metric-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-num {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #10b981;
+            line-height: 1;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-top: 0.5rem;
+        }
+
+        .metric-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* Code Blocks */
+        .code-box {
+            background: #060911;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 1.2rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            direction: ltr;
+            text-align: left;
+            color: #38bdf8;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .code-comment {
+            color: #64748b;
+        }
+
+        /* Architecture Diagram Box */
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            gap: 0.8rem;
+        }
+
+        .flow-step {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .author-tag {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        /* Title Slide Special */
+        .title-slide {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-badge {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(16, 185, 129, 0.2));
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 0.5rem 1.4rem;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .hero-title {
+            font-size: 3.4rem;
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: #94a3b8;
+            max-width: 800px;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .author-box {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .author-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .author-item span:first-child {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .author-item span:last-child {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Keyboard Tip */
+        .key-hint {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.6rem;
+            z-index: 40;
+        }
+
+        kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            color: #fff;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+        <div class="logo-badge">
+            🔍 DeepInspect <span>AI</span>
+        </div>
+        <div class="nav-controls">
+            <div class="slide-counter" id="counter">1 / 10</div>
+            <button class="nav-btn" onclick="prevSlide()">السابق ➔</button>
+            <button class="nav-btn" onclick="nextSlide()">⬅ التالي</button>
+            <button class="nav-btn" onclick="toggleFullScreen()" title="ملء الشاشة">⛶</button>
+        </div>
+    </header>
+
+    <main class="stage">
+
+        <!-- SLIDE 1: Title -->
+        <section class="slide active title-slide">
+            <div class="hero-badge">نظام الفحص البصري الصناعي المؤتمت • Industry 4.0</div>
+            <h1 class="hero-title">DeepInspect AI</h1>
+            <p class="hero-subtitle">
+                اكتشاف العيوب والكسور السطحية في خطوط الإنتاج باستخدام التعلم العميق غير الموجه 
+                <br>
+                <strong>Unsupervised Visual Anomaly Detection using PyTorch Convolutional Autoencoder</strong>
+            </p>
+            <div class="author-box">
+                <div class="author-item">
+                    <span>الباحث والمهندس</span>
+                    <span>محمد أحمد العنسي (Mohammed Ahmed Al-ansi)</span>
+                </div>
+                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+                <div class="author-item">
+                    <span>المجال</span>
+                    <span>Deep Learning & Computer Vision</span>
+                </div>
+                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+                <div class="author-item">
+                    <span>مجموعة البيانات المعتمدة</span>
+                    <span>MVTec Anomaly Detection (Bottle)</span>
+                </div>
+            </div>
+            <div class="slide-footer" style="width: 100%;">
+                <span>جامعة / معهد الذكاء الاصطناعي</span>
+                <span class="author-tag">GitHub: @Mohammed-Ahmed-Alansi</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: Problem Statement -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">المشكلة والدوافع الصناعية</div>
+                <h2 class="slide-title">لماذا تفشل الطرق التقليدية في <span>فحص خطوط الإنتاج؟</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="feature-card" style="border-right: 4px solid var(--danger);">
+                        <div class="card-icon">👁️‍🗨️</div>
+                        <div class="card-title">1. قصور الفحص البشري (Human Inspection)</div>
+                        <div class="card-desc">
+                            تمر آلاف الزجاجات كل ساعة على السيور الناقلة. يُصاب المفتش البشري بالإجهاد البصري بعد 20 دقيقة، مما يؤدي لتفويت الشروخ والكسور الدقيقة وزيادة نسبة المنتجات المعيبة التي تصل للمستهلك.
+                        </div>
+                    </div>
+                    <div class="feature-card" style="border-right: 4px solid #f59e0b;">
+                        <div class="card-icon">⚠️</div>
+                        <div class="card-title">2. استحالة التدريب الخاضع للإشراف (Supervised ML)</div>
+                        <div class="card-desc">
+                            في المصانع الحقيقية، نسبة العيوب أقل من 1%. لا يمكن تدريب مصنفات عادية (Classification) لأنه يستحيل جمع وتصنيف كل أشكال الكسور والشروخ والشوائب الممكنة التي قد تظهر عشوائياً!
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-card" style="margin-top: 1.5rem; background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2);">
+                    <div class="card-title" style="color: var(--primary);">🎯 الهدف الهندسي لمشروع DeepInspect AI:</div>
+                    <div class="card-desc">
+                        بناء نظام ذكاء اصطناعي <strong>غير موجه (Unsupervised)</strong> يتعلم تلقائياً من المنتجات السليمة فقط، ويكتشف أي كسر أو شائبة فوراً ويحدد موقعه بالبكسل مع تقديم قرار فوري <strong>(PASS / REJECT)</strong> في أجزاء من الثانية.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Problem Formulation & Industrial Motivation</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: The Unsupervised Solution -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">فلسفة الحل الذكي</div>
+                <h2 class="slide-title">التعلم غير الموجه عبر <span>Convolutional Autoencoder</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="arch-flow">
+                    <div class="flow-step">
+                        <div style="font-size: 1.5rem;">📷</div>
+                        <strong>صورة الفحص</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">256x256 RGB</div>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step" style="border-color: var(--primary);">
+                        <div style="font-size: 1.5rem;">🧠</div>
+                        <strong>المشفر (Encoder)</strong>
+                        <div style="font-size: 0.8rem; color: var(--primary);">ضغط إلى 128 Latent</div>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step" style="border-color: var(--accent);">
+                        <div style="font-size: 1.5rem;">🎨</div>
+                        <strong>المفكك (Decoder)</strong>
+                        <div style="font-size: 0.8rem; color: var(--accent);">إعادة البناء كمنتج سليم</div>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step" style="border-color: var(--danger);">
+                        <div style="font-size: 1.5rem;">🔥</div>
+                        <strong>خريطة الفروقات (MSE)</strong>
+                        <div style="font-size: 0.8rem; color: var(--danger);">كشف العيب بالبكسل</div>
+                    </div>
+                </div>
+
+                <div class="grid-3" style="margin-top: 1rem;">
+                    <div class="feature-card">
+                        <div class="card-title">1. التدريب على السليم فقط</div>
+                        <div class="card-desc">يحفظ النموذج البنية الهندسية وتوزيع الضوء للزجاجات السليمة دون أن يرى أي عيب أثناء التدريب.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-title">2. محاولة إعادة البناء</div>
+                        <div class="card-desc">عند دخول زجاجة مكسورة، يعيد النموذج رسمها كزجاجة سليمة لأنه لا يعرف كيف يرسم الكسور.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-title">3. طرح الصورتين</div>
+                        <div class="card-desc">طرح الصورة الأصلية من الصورة المعاد بناؤها يُظهر العيب فوراً كبقعة حرارية مرتفعة الخطأ!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Core Paradigm: Unsupervised Reconstruction Failure</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Dataset & Zero Leakage -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">هندسة البيانات</div>
+                <h2 class="slide-title">مجموعة بيانات <span>MVTec AD</span> وعزل البيانات الصارم</h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <div class="card-title">📌 معيار الصناعة العالمي (MVTec AD)</div>
+                        <div class="card-desc">
+                            تم التقاط الصور بكاميرات صناعية ذات دقة عالية وإضاءة حلقية موجهة <strong>(Top-Down Darkfield Ring Light)</strong> لفحص فوهة وعنق الزجاجات الشفافة قبل مرحلة التغطية بالغطاء.
+                        </div>
+                        <ul style="margin-right: 1.2rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-top: 0.5rem;">
+                            <li><strong>فئة الزجاجات (Bottle Category)</strong></li>
+                            <li>تصوير فوتوغرافي حقيقي 100% في استوديوهات صناعية بألمانيا.</li>
+                            <li>أقنعة الحقيقة الأرضية (Pixel Ground Truth Masks) لتقييم الدقة بدقة البكسل.</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" style="border-color: rgba(16, 185, 129, 0.3);">
+                        <div class="card-title" style="color: var(--accent);">🔒 منع تسريب البيانات (Zero Data Leakage)</div>
+                        <div class="card-desc">
+                            تم تطبيق بروتوكول عزل رياضي صارم لمنع أي تحيز في نتائج التقييم:
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.8rem;">
+                            <div style="background: rgba(255,255,255,0.04); padding: 0.6rem; border-radius: 8px; font-size: 0.85rem;">
+                                🟢 <strong>مجموعة التدريب (Train):</strong> 209 صورة سليمة تماماً (good فقط).
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); padding: 0.6rem; border-radius: 8px; font-size: 0.85rem;">
+                                🟡 <strong>مجموعة التحقق (Val - 20%):</strong> مشتقة حصرياً من الصور السليمة لضبط المعلمات.
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); padding: 0.6rem; border-radius: 8px; font-size: 0.85rem;">
+                                🔴 <strong>مجموعة الاختبار (Test):</strong> 83 صورة حقيقية (سليمة + كسور كبيرة + كسور دقيقة + تلوث).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Data Isolation & Industrial Benchmark Integrity</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: Model Architecture -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">البنية المعمارية للشبكة العصبية</div>
+                <h2 class="slide-title">تصميم <span>Convolutional Autoencoder (CAE)</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <div class="card-title">1. المشفر (Encoder Pipeline)</div>
+                        <div class="code-box">
+Input: [3, 256, 256] (196,608 values)
+ ➔ Conv2D(3, 32)   + BN + ReLU + MaxPool ➔ [32, 128, 128]
+ ➔ Conv2D(32, 64)  + BN + ReLU + MaxPool ➔ [64, 64, 64]
+ ➔ Conv2D(64, 128) + BN + ReLU + MaxPool ➔ [128, 32, 32]
+ ➔ Conv2D(128, 256)+ BN + ReLU + MaxPool ➔ [256, 16, 16]
+ ➔ Flatten(65,536) ➔ Linear ➔ <span style="color:#10b981;">Latent Vector: 128</span>
+                        </div>
+                        <div class="card-desc" style="font-size: 0.85rem;">
+                            ⚡ نسبة ضغط تفوق <strong>99.9%</strong> لتجريد الميزات الأساسية وإجبار الشبكة على فهم الهيكل بدلاً من الحفظ السطحي.
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-title">2. المفكك (Decoder Pipeline)</div>
+                        <div class="code-box">
+Latent: [128] ➔ Linear ➔ Reshape [256, 16, 16]
+ ➔ ConvTranspose2D(256, 128) + BN + ReLU ➔ [128, 32, 32]
+ ➔ ConvTranspose2D(128, 64)  + BN + ReLU ➔ [64, 64, 64]
+ ➔ ConvTranspose2D(64, 32)   + BN + ReLU ➔ [32, 128, 128]
+ ➔ ConvTranspose2D(32, 3)    + <span style="color:#eab308;">Sigmoid()</span>  ➔ [3, 256, 256]
+                        </div>
+                        <div class="card-desc" style="font-size: 0.85rem;">
+                            ✨ دالة <strong>Sigmoid</strong> في المخرج تضمن تقييد قيم البكسلات في النطاق الفيزيائي المعياري [0.0, 1.0].
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Architectural Blueprint: 4-Stage Hierarchical CAE</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: Defect Localization Pipeline -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">الرؤية الحاسوبية ومعالجة الصور</div>
+                <h2 class="slide-title">خوارزمية <span>توطين العيب وتوليد الخريطة الحرارية</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-3">
+                    <div class="feature-card">
+                        <div class="card-icon">📐</div>
+                        <div class="card-title">1. حساب الفرق التربيعي</div>
+                        <div class="code-box">
+diff = (Input - Recon) ** 2
+residual = mean(diff, dim=RGB)
+                        </div>
+                        <div class="card-desc">
+                            حساب الفارق في كل بكسل عبر قنوات الألوان الثلاث للحصول على مصفوفة أخطاء ثنائية الأبعاد (256x256).
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-icon">🌊</div>
+                        <div class="card-title">2. الترشيح المكاني الغاوسي</div>
+                        <div class="code-box">
+smoothed = cv2.GaussianBlur(
+  residual, (7, 7), sigma=4.0
+)
+score = max(smoothed)
+                        </div>
+                        <div class="card-desc">
+                            تطبيق فلتر Gaussian لإلغاء ضوضاء حساس الكاميرا والتركيز على العيوب المترابطة مكانياً.
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-icon">🎨</div>
+                        <div class="card-title">3. الدمج الحراري (Jet Map)</div>
+                        <div class="code-box">
+heatmap = cv2.applyColorMap(
+  norm, cv2.COLORMAP_JET
+)
+overlay = 0.5*Orig + 0.5*Heat
+                        </div>
+                        <div class="card-desc">
+                            تلوين العيب باللون الأحمر الساطع ودمجه مع الصورة الأصلية لتقديم تفسير بصري فوري لمهندس الجودة.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Pixel Residual Modeling & Spatial Heatmap Localization</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: Evaluation Results -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">النتائج التجريبية والمقاييس القياسية</div>
+                <h2 class="slide-title">أرقام الأداء والتقييم على <span>بيانات الاختبار</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-4">
+                    <div class="metric-badge">
+                        <div class="metric-num">85.8%</div>
+                        <div class="metric-label">Image-Level AUROC</div>
+                        <div class="metric-sub">دقة فرز الزجاجات السليمة عن المعيبة</div>
+                    </div>
+                    <div class="metric-badge">
+                        <div class="metric-num">82.2%</div>
+                        <div class="metric-label">Pixel-Level AUROC</div>
+                        <div class="metric-sub">دقة تحديد وتوطين موضع العيب بالبكسل</div>
+                    </div>
+                    <div class="metric-badge">
+                        <div class="metric-num" style="color: #38bdf8; font-size: 2.2rem;">0.0452</div>
+                        <div class="metric-label">Optimal Threshold</div>
+                        <div class="metric-sub">العتبة المثلى رياضياً لأعلى F1-Score</div>
+                    </div>
+                    <div class="metric-badge">
+                        <div class="metric-num" style="color: #a855f7;">15 / 15</div>
+                        <div class="metric-label">Unit Tests Passed</div>
+                        <div class="metric-sub">اجتياز كامل لاختبارات الـ Pytest</div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div class="feature-card">
+                        <div class="card-title">📉 استقرار التدريب (Loss Convergence)</div>
+                        <div class="card-desc">
+                            تم التدريب لمدة <strong>50 حقبة (Epochs)</strong> على كرت <strong>NVIDIA Tesla T4 GPU</strong>. انخفضت الخسارة بشكل سلس ومستمر من <code>0.12+</code> حتى استقرت عند <code>0.003</code> دون أي إشارات فرط تخصيص (Overfitting).
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-title">⚖️ لماذا مقياس AUROC؟</div>
+                        <div class="card-desc">
+                            لأن مشكلة اكتشاف الشذوذ الصناعية تعاني من عدم توازن حاد في البيانات (Imbalanced Data). مقياس <strong>AUROC</strong> مستقل عن العتبة ويعبر بصدق عن القدرة التمييزية للنموذج.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Benchmarked on MVTec AD Test Set with Paired Ground Truth</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: Streamlit Dashboard -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">التطبيق العملي والصناعي</div>
+                <h2 class="slide-title">لوحة التحكم التفاعلية <span>Streamlit Inspection Dashboard</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-3">
+                    <div class="feature-card" style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📸</div>
+                        <div class="card-title">1. الصورة الأصلية</div>
+                        <div class="card-desc">استقبال البث الفوري من كاميرا الفحص الصناعية بدقة 256x256 بكسل RGB.</div>
+                    </div>
+                    <div class="feature-card" style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+                        <div class="card-title">2. إعادة بناء النموذج</div>
+                        <div class="card-desc">توليد لحظي للزجاجة بالشكل الاسمي السليم من ذاكرة الـ Autoencoder.</div>
+                    </div>
+                    <div class="feature-card" style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚨</div>
+                        <div class="card-title">3. خريطة العيب الحرارية</div>
+                        <div class="card-desc">إبراز مكان الكسر بلون أحمر ناري مع إصدار قرار فوري: <strong>PASS / REJECT</strong>.</div>
+                    </div>
+                </div>
+
+                <div class="feature-card" style="margin-top: 1.5rem; background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                    <div class="card-title" style="color: var(--accent);">🎛️ مميزات متقدمة لمهندسي الجودة في المصنع:</div>
+                    <div class="card-desc">
+                        تحكم ديناميكي بمرونة العتبة (Threshold Slider) للتكيف مع نسب التفاوت المقبولة في المصنع • دعم فحص عينات فوتوغرافية حقيقية لزجاجات سليمة ومكسورة وملوثة • سرعة استدلال فائقة في أجزاء من الثانية.
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Live Interactive Deployment: http://localhost:8501</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: Project Architecture & Code Quality -->
+        <section class="slide">
+            <div class="slide-header">
+                <div class="category-tag">الجودة البرمجية وهندسة النظم</div>
+                <h2 class="slide-title">التنظيم المعماري وهيكلية المشروع على <span>GitHub</span></h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <div class="card-title">📂 هيكلية برمجية معيارية (Clean Architecture)</div>
+                        <div class="code-box" style="font-size: 0.8rem;">
+02-Industrial-Anomaly-Detection-PyTorch/
+├── app/app.py              # لوحة Streamlit التفاعلية
+├── configs/config.yaml     # المعلمات الموحدة للمشروع
+├── data/demo_samples/      # عينات فوتوغرافية حقيقية
+├── notebooks/              # نوت بوك Google Colab GPU
+├── src/
+│   ├── data/dataset.py     # خط البيانات مع عزل التسريب
+│   ├── models/autoencoder.py # شبكة ConvAutoencoder
+│   ├── training/train.py   # حلقة التدريب مع الإيقاف المبكر
+│   ├── evaluation/metrics.py# حساب مقاييس AUROC و F1
+│   └── inference/predict.py# محرك التنبؤ والخريطة الحرارية
+└── tests/                  # 15 اختبار وحدات بالكامل
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-title">🛡️ معايير البرمجة الاحترافية المطبقة</div>
+                        <ul style="margin-right: 1.2rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-top: 0.5rem;">
+                            <li><strong>Type Hinting & Docstrings:</strong> توثيق دقيق لكل الدوال والمدخلات والمخرجات.</li>
+                            <li><strong>15 Unit Tests:</strong> تغطية كاملة لـ (Data, Model, Train, Eval, Inference).</li>
+                            <li><strong>Cloud GPU Notebook:</strong> نوت بوك Colab مستقل ذاتياً (Self-Contained).</li>
+                            <li><strong>Git & GitHub Sync:</strong> مرفوع وموثق رسمياً على GitHub ضمن محفظة مشاريع التعلم العميق.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Enterprise Python Standards & Git Repository</span>
+                <span class="author-tag">DeepInspect AI</span>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: Conclusion & Q&A -->
+        <section class="slide title-slide">
+            <div class="hero-badge" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #10b981;">
+                خاتمة العرض والمناقشة
+            </div>
+            <h2 class="hero-title" style="font-size: 3rem;">شكراً لحسن استماعكم</h2>
+            <p class="hero-subtitle">
+                نظام <strong>DeepInspect AI</strong> يمثل حلاً هندسياً حقيقياً وقابلاً للتطبيق الفوري في خطوط الإنتاج الذكية، 
+                جامعاً بين كفاءة التعلم غير الموجه ودقة الرؤية الحاسوبية الصناعية.
+            </p>
+
+            <div class="author-box" style="margin-bottom: 2rem;">
+                <div class="author-item">
+                    <span>مقدم المشروع</span>
+                    <span>محمد أحمد العنسي</span>
+                </div>
+                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+                <div class="author-item">
+                    <span>المستودع الرسمي</span>
+                    <span>github.com/Mohammed-Ahmed-Alansi</span>
+                </div>
+            </div>
+
+            <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary);">
+                جاهز لتلقي أسئلة واستفسارات لجنة المناقشة الكريمة 💬
+            </div>
+
+            <div class="slide-footer" style="width: 100%;">
+                <span>DeepInspect AI — Defense Session</span>
+                <span class="author-tag">Mohammed Ahmed Al-ansi</span>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="key-hint">
+        <span>تنقل بالأسهم: <kbd>→</kbd> <kbd>←</kbd></span>
+        <span>أو المسافة: <kbd>Space</kbd></span>
+        <span>ملء الشاشة: <kbd>F11</kbd></span>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const counter = document.getElementById('counter');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update Progress Bar & Counter
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+            counter.innerText = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
