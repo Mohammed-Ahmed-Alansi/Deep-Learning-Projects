@@ -64,9 +64,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ==============================================================================
-# 2. Load Models
-# ==============================================================================
+import socket
+
+def get_local_ip() -> str:
+    """Detect LAN IP address automatically for mobile connection."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "192.168.8.159"
+
+LOCAL_IP = get_local_ip()
 PATCHCORE_BANK = "models/patchcore_bank.pkl"
 CAE_CHECKPOINT = "models/best_model.pth"
 
@@ -153,8 +164,8 @@ with st.sidebar:
 
     st.markdown("---")
     st.info(
-        "📱 **للهاتف:** تأكد أن هاتفك على نفس شبكة WiFi ثم افتح:\n\n"
-        "`http://192.168.88.157:8501`"
+        f"📱 **للهاتف:** تأكد أن هاتفك على نفس شبكة WiFi ثم افتح الرابط في المتصفح:\n\n"
+        f"👉 **`http://{LOCAL_IP}:8501`**"
     )
 
 
