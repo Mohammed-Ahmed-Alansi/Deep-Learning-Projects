@@ -1,0 +1,25 @@
+project:
+  name: "DeepInspect-AI"
+  seed: 42
+dataset:
+  name: "MVTec-AD"
+  category: "bottle"
+  root_dir: "data/mvtec_ad/bottle"
+  image_size: [256, 256]
+  channels: 3
+  batch_size: 16
+  num_workers: 2
+  val_split_ratio: 0.2
+  pin_memory: true
+model:
+  name: "ConvAutoencoder"
+  in_channels: 3
+  channel_multipliers: [32, 64, 128, 256]
+  latent_dim: 128
+training:
+  epochs: 50
+  learning_rate: 0.001
+  weight_decay: 0.00001
+  device: "cuda"
+  checkpoint_dir: "./models"
+  output_dir: "./outputs"

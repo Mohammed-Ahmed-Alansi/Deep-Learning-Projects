@@ -1,5 +1,7 @@
 # Data and model weights
-data/
+/data/
+**/data/mvtec_ad/
+**/data/mvtec_ad_raw/
 *.pt
 *.pth
 *.bin
