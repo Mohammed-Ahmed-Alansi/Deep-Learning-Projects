@@ -98,5 +98,8 @@ streamlit run app/app.py
 
 - **Zero Data Leakage**: The training split strictly ingests non-defective samples (`train/good/`).
 - **Modularity & OOP**: Components are decoupled into clear interfaces with full type hinting and docstrings.
+- **Factory Floor Simulation & Video**: High-precision 60 FPS conveyor belt simulation with real-time AI optical scanning and pneumatic ejector arm for defective glass separation (`factory_inspection_simulation.mp4`).
+- **Interactive Technical Keynote**: 17-slide standalone defense presentation deck (`DeepInspect_AI_Presentation.html`) with embedded live canvas digital twin, timer, and slide index.
+
 - **Reproducibility**: Global seeding is enforced across PyTorch, NumPy, and Python standard libraries.
 
